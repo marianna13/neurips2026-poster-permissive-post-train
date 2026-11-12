@@ -1,0 +1,34 @@
+{
+  "columns": [
+    {
+      "id": "col1",
+      "widthMm": 420,
+      "cards": [
+        "tldr",
+        "setup",
+        "factorial"
+      ]
+    },
+    {
+      "id": "col2",
+      "widthMm": null,
+      "cards": [
+        "main",
+        "results"
+      ]
+    },
+    {
+      "id": "col3",
+      "widthMm": 400,
+      "cards": [
+        "sensitivity",
+        "concl"
+      ]
+    }
+  ],
+  "cardHeights": {
+    "main": 215
+  },
+  "fontScale": 3.6,
+  "logos": []
+}

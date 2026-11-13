@@ -16,3 +16,10 @@ Poster (140 × 90 cm, landscape) for the NeurIPS 2026 main conference.
 To re-export the PDF, use the browser's Print → Save as PDF with paper size 1400 × 900 mm and no margins.
 
 Code, evals & checkpoints: https://github.com/MixtureVitae/permissive-post-train
+
+## Workshop version
+
+`workshop/` holds the poster for the NeurIPS 2026 workshop *Transitioning from Pre-Training to Post-Training*
+("Permissive Data Is Not the Bottleneck"), at 61 × 85 cm portrait.
+- `workshop/poster-workshop.pdf` is the print-ready PDF and `workshop/index.html` is the editable source. It shares `logos/` and `qr.png` with the main poster.
+- `python scripts/workshop_figs.py workshop` regenerates `factorial.png` and `receptivity.png`.

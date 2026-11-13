@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Permissive Data Is Not the Bottleneck - NeurIPS 2026 Workshop Poster</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<script crossorigin src="https://unpkg.com/react@18.3.1/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/@babel/standalone@7.24.7/babel.min.js"></script>
+<style>
+  /* Workshop version: 61 x 85 cm portrait. Palette matches the main poster. */
+  :root {
+    --blue: #3b5a80; --blue-light: #e6edf5;
+    --orange: #c0532b; --orange-light: #fbeee6;
+    --teal: #2f8a7a; --purple: #6a4c9c; --red: #b23a48;
+    --text: #1f2430; --text-light: #4f5666;
+    --bg: #eef1f5; --card-bg: #fff;
+    --gap: 3.5mm; --pad: 8mm;
+    --font-scale: 2.85;
+  }
+
+  @page { size: 610mm 850mm; margin: 0; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { font-family: 'Nunito', sans-serif; color: var(--text); -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { width: 610mm; height: 850mm; background: var(--bg); overflow: hidden; transform-origin: top left; }
+  #root { width: 100%; height: 100%; display: grid; grid-template-rows: auto 1fr; }
+  @media screen { html { background:#bbb; overflow:hidden; width:100vw; height:100vh; } body { position:absolute; box-shadow:0 4px 30px rgba(0,0,0,.3); border-radius:4px; } }
+  @media print { html { background:none; } body { position:static; transform:none!important; box-shadow:none; border-radius:0; } .toolbar,.divider,.swap-handle,.drop-zone{display:none!important;} }
+  body.preview .divider, body.preview .swap-handle, body.preview .drop-zone { display:none!important; }
+
+  /* === HEADER === */
+  .header { background: linear-gradient(120deg,#1f3550,#3b5a80 55%,#55779e); padding:6mm var(--pad) 5.5mm; display:flex; align-items:center; gap:6mm; }
+  .header-left { flex:1; }
+  .header h1 { font-size:47pt; font-weight:900; line-height:1.08; color:#fff; margin-bottom:2.5mm; }
+  .header h1 .m { color:#ffb38a; }
+  .header .authors { font-size:20pt; color:rgba(255,255,255,.95); font-weight:700; line-height:1.3; }
+  .header .authors sup { font-size:11pt; color:#ffb38a; }
+  .header .aff { font-size:14pt; color:rgba(255,255,255,.78); margin-top:1.5mm; line-height:1.35; }
+  .header .aff sup { color:#ffb38a; font-size:9pt; }
+  .header .aff .eq { font-style:italic; }
+  .header .ws { font-size:16pt; color:#ffb38a; font-weight:800; margin-top:2mm; }
+  .header-right { display:flex; flex-direction:column; align-items:center; gap:3mm; flex-shrink:0; }
+  .badge { background:#fff; padding:2mm 3.5mm; border-radius:2mm; text-align:center; line-height:1.1; }
+  .badge img { height:13mm; display:block; margin:0 auto; }
+  .badge span { display:block; font-size:13pt; font-weight:900; color:#3d3a8c; margin-top:.6mm; }
+  .header-right .qr { text-align:center; display:flex; flex-direction:column; align-items:center; }
+  .header-right .qr img { width:34mm; height:34mm; border-radius:1.5mm; background:#fff; padding:1mm; }
+  .header-right .ql { font-size:10pt; color:#ffb38a; font-weight:800; text-align:center; margin-top:.8mm; max-width:38mm; line-height:1.15; }
+  .logobar { background:#fff; display:flex; align-items:center; justify-content:space-between; padding:2mm calc(var(--pad) + 2mm); height:27mm; border-bottom:2mm solid var(--orange); }
+  .logobar img { object-fit:contain; display:block; }
+  .logobar img[alt="Ontocord"] { border-radius:1.5mm; }
+
+  /* === POSTER COLUMNS === */
+  .poster { display:flex; gap:var(--gap); padding:var(--gap) var(--pad) var(--pad); min-height:0; flex:1; overflow:hidden; }
+  .col { display:flex; flex-direction:column; gap:var(--gap); min-height:0; overflow:hidden; }
+
+  /* === CARD === */
+  .card { background:var(--card-bg); border-radius:3.5mm; padding:5mm 7mm; box-shadow:0 1px 4px rgba(0,0,0,.08); border-top:4px solid var(--blue); display:flex; flex-direction:column; overflow:hidden; min-height:0; flex:0 0 auto; position:relative; transition: outline .15s; }
+  .card.grow { flex:1 1 0; }
+  .card[data-id="main"] { border-top-width:7px; box-shadow:0 2px 10px rgba(31,53,80,.18); }
+  .card[data-id="main"] h2 { font-size:calc(13.5pt * var(--font-scale)); white-space:nowrap; }
+  .card.orange { border-top-color:var(--orange); }
+  .card.teal   { border-top-color:var(--teal); }
+  .card.purple { border-top-color:var(--purple); }
+  .card.red    { border-top-color:var(--red); }
+
+  .card h2 { font-size:calc(13pt * var(--font-scale)); font-weight:900; margin-bottom:2.5mm; flex-shrink:0; color:var(--blue); }
+  .card h2 .num { display:inline-block; background:var(--blue); color:#fff; border-radius:50%; width:1.35em; height:1.35em; line-height:1.35em; text-align:center; font-size:.8em; margin-right:.35em; vertical-align:.12em; }
+  .card.orange h2{color:var(--orange);} .card.teal h2{color:var(--teal);} .card.purple h2{color:var(--purple);} .card.red h2{color:var(--red);}
+  .card.orange h2 .num{background:var(--orange);} .card.teal h2 .num{background:var(--teal);} .card.purple h2 .num{background:var(--purple);} .card.red h2 .num{background:var(--red);}
+  .card p,.card li { font-size:calc(9.5pt * var(--font-scale)); line-height:1.32; }
+  .card ul,.card ol { padding-left:6mm; flex-shrink:0; }
+  .card li { margin-bottom:1.2mm; }
+  .card li::marker { font-weight:700; color:var(--blue); }
+  .mv { color:var(--orange); font-weight:800; }
+  .cm { color:var(--purple); font-weight:800; }
+  .up { color:#2c7a4b; font-weight:800; }
+  .dn { color:var(--red); font-weight:800; }
+
+  /* Highlight box */
+  .hl { background:var(--blue-light); border-left:4px solid var(--blue); padding:3.5mm 5mm; border-radius:0 2mm 2mm 0; margin-bottom:2.5mm; flex-shrink:0; }
+  .hl.o { background:var(--orange-light); border-left-color:var(--orange); }
+  .hl p { font-size:calc(10pt * var(--font-scale)); line-height:1.35; font-weight:700; }
+
+  /* Figures */
+  .fig { flex:1; display:flex; flex-direction:column; min-height:0; margin:1.5mm 0; }
+  .fig-wrap { flex:1; display:flex; align-items:center; justify-content:center; min-height:0; overflow:hidden; }
+  .fig-wrap img { width:100%; height:100%; object-fit:contain; border-radius:1.5mm; display:block; }
+  .fig .cap { font-size:calc(7.5pt * var(--font-scale)); color:var(--text-light); margin-top:1mm; line-height:1.25; flex-shrink:0; }
+  .fig .cap b { color:var(--text); }
+
+  /* Tables */
+  table { width:100%; border-collapse:collapse; font-size:calc(8.5pt * var(--font-scale)); margin:1.5mm 0 2mm; flex-shrink:0; }
+  thead th { background:var(--blue); color:#fff; padding:1.6mm 2.5mm; text-align:right; font-weight:800; font-size:calc(8pt * var(--font-scale)); }
+  thead th:first-child { text-align:left; }
+  tbody td { padding:1.3mm 2.5mm; border-bottom:1px solid #e6e9ee; text-align:right; }
+  tbody td:first-child { text-align:left; }
+  tbody tr:nth-child(even) { background:#f6f8fb; }
+  tr.sec td { background:#fff !important; color:var(--text-light); font-style:italic; font-weight:700; font-size:calc(7.5pt * var(--font-scale)); padding-top:2mm; border-bottom:1.5px solid #c9d2de; }
+  .best { font-weight:900; color:var(--orange); }
+  table.combo tr.grp th { background:#1f3550; text-align:center; font-size:calc(8pt * var(--font-scale)); }
+  table.combo tr.grp th:first-child { background:transparent; }
+  table.combo .p2 { border-left:3px solid #c9d2de; }
+  table.combo { font-size:calc(9.6pt * var(--font-scale)); }
+  table.combo thead th { font-size:calc(8.8pt * var(--font-scale)); }
+  table.combo tbody td { padding:1.6mm 2.5mm; }
+  table.combo thead .p2 { border-left-color:#fff; }
+  .tnote { font-size:calc(7pt * var(--font-scale)); color:var(--text-light); line-height:1.25; flex-shrink:0; }
+
+  /* Stat pair */
+  .stats { display:flex; gap:4mm; margin:1.5mm 0 2.5mm; flex-shrink:0; }
+  .stat { flex:1; border-radius:2mm; padding:2.5mm 4mm; background:#f6f8fb; border:1.5px solid #dde3ea; }
+  .stat .v { font-size:calc(17pt * var(--font-scale)); font-weight:900; line-height:1.05; }
+  .stat .l { font-size:calc(7.5pt * var(--font-scale)); color:var(--text-light); line-height:1.25; margin-top:.8mm; }
+  .stat.o { background:var(--orange-light); border-color:#efc3ad; } .stat.o .v { color:var(--orange); }
+  .stat.g .v { color:#7d8796; }
+
+  /* Links */
+  .links { display:flex; align-items:center; gap:4mm; background:var(--blue-light); padding:3mm 5mm; border-radius:2mm; margin-top:auto; flex-shrink:0; }
+  .links .ll { font-size:calc(8.5pt * var(--font-scale)); line-height:1.5; }
+  .links .ll b { color:var(--blue); }
+
+  /* === TOOLBAR === */
+  .toolbar { position:fixed; top:8px; right:8px; z-index:1000; display:flex; gap:6px; align-items:center; }
+  .toolbar button { font-family:'Nunito'; font-size:11px; font-weight:700; padding:5px 12px; border-radius:6px; border:none; cursor:pointer; background:#eee; color:#555; }
+  .toolbar button:hover { background:#ddd; }
+
+  .card .swap-handle { position:absolute; top:2mm; right:2mm; width:10mm; height:10mm; background:var(--blue); color:#fff; border-radius:1.5mm; font-size:12pt; text-align:center; line-height:10mm; cursor:pointer; z-index:10; user-select:none; opacity:.4; transition: opacity .15s, background .15s, transform .15s; }
+  .card .swap-handle:hover { opacity:.8; transform:scale(1.15); }
+  .card.swap-selected { outline:3px solid var(--orange); outline-offset:-1px; }
+  .card.swap-selected .swap-handle { background:var(--orange); opacity:1; transform:scale(1.2); }
+
+  .divider { position:relative; z-index:50; flex-shrink:0; }
+  .divider::after { content:''; position:absolute; background:rgba(59,90,128,.12); border-radius:1.5mm; transition:background .15s; }
+  .divider:hover::after, .divider.active::after { background:rgba(59,90,128,.5); }
+  .col-resize { width:8mm; cursor:col-resize; margin:0 -4mm; }
+  .col-resize::after { top:0; bottom:0; left:2.5mm; width:3mm; }
+  .row-resize { height:8mm; cursor:row-resize; margin:-4mm 0; }
+  .row-resize::after { left:0; right:0; top:2.5mm; height:3mm; }
+
+  .drop-zone { height:0; position:relative; z-index:60; transition: height .15s; }
+  .drop-zone.visible { height:6mm; }
+  .drop-zone-inner { position:absolute; left:2mm; right:2mm; top:0; bottom:0; border-radius:1.5mm; background:rgba(192,83,43,.15); border:2px dashed var(--orange); transition: background .15s; cursor:pointer; }
+  .drop-zone-inner:hover { background:rgba(192,83,43,.35); }
+  /* workshop-size overrides */
+  .card { padding:3.5mm 4.5mm; border-radius:2.5mm; border-top-width:3px; }
+  .card h2 { margin-bottom:1.8mm; }
+  .card ul,.card ol { padding-left:4.5mm; }
+  .card li { margin-bottom:.9mm; }
+  .hl { padding:2.5mm 3.5mm; margin-bottom:2mm; border-left-width:3px; }
+  thead th { padding:1.1mm 1.8mm; }
+  tbody td { padding:.9mm 1.8mm; }
+  table.combo tbody td { padding:1.1mm 1.8mm; }
+  table.combo { font-size:calc(9pt * var(--font-scale)); }
+  table.combo thead th { font-size:calc(8.3pt * var(--font-scale)); }
+  .links { padding:2mm 3.5mm; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel">
+const { useState, useRef, useEffect, useCallback } = React;
+const MM = 3.7795275591;
+const POSTER_W_MM = 610;
+const POSTER_H_MM = 850;
+
+const CARD_REGISTRY = {
+  tldr: {
+    title: <>Question &amp; TL;DR</>,
+    color: null,
+    grow: false,
+    body: (
+      <>
+        <div className="hl"><p>Is <b>permissively licensed</b> pretraining data a bottleneck for post-training, or does the <b>composition</b> of the mixture matter more?</p></div>
+        <ul>
+          <li><b>Front-loading</b> instruction &amp; reasoning data into pretraining is the driver: <span className="up">+10.3 to +19.2</span> pts of reasoning suite average in <b>all 18</b> cells.</li>
+          <li><b>Licensing is not the bottleneck for reasoning.</b> With front-loading, permissive <span className="mv">MixtureVitae</span> matches the non-permissive datasets at 4K and leads by <b>+4.7–5.0</b> pts at 16K.</li>
+          <li><b>Receptivity to reasoning SFT is laid down in pretraining.</b></li>
+          <li><b>One gap remains:</b> general language understanding.</li>
+        </ul>
+      </>
+    ),
+  },
+  setup: {
+    title: <>3 × 2 factorial design</>,
+    color: null,
+    grow: false,
+    body: (
+      <>
+        <div className="fig" style={{flex:'0 0 auto'}}><div className="fig-wrap"><img src="pipeline.png" alt="Post-training pipeline" style={{height:'auto'}} /></div></div>
+        <ul>
+          <li><b>1.7B models, 300B tokens</b>, identical open-sci-ref recipe and post-training: only the pretraining data changes.</li>
+          <li><b>Web dataset</b> (<span className="mv">MixtureVitae</span> permissive, Nemotron-CC-HQ, FineWeb-Edu) × <b>front-loading</b> (the same instruction &amp; reasoning subset present or absent).</li>
+          <li><b>Evaluation:</b> 11-task reasoning suite (math, code, science QA, IFEval), 3 decoding seeds, paired bootstrap CIs; language understanding suite. Training data decontaminated (13-gram).</li>
+        </ul>
+      </>
+    ),
+  },
+  factorial: {
+    title: <><span className="num">1</span>Front-loading drives the gain in every dataset</>,
+    color: null,
+    grow: true,
+    body: (
+      <>
+        <div className="fig"><div className="fig-wrap"><img src="factorial.png" alt="Reasoning suite average at 16K across Base, Tulu3 SFT and DPO, with and without front-loading" /></div></div>
+        <ul>
+          <li><b>Tulu3 cannot substitute for front-loading</b>, although it contains math &amp; code: the gap is largest at the base (~19 pts) and Phase 1 recovers only part of it.</li>
+          <li><b>Matched front-loading:</b> <span className="mv">MV</span> vs. Nemotron / FineWeb is <b>+0.5 / +0.4</b> at 4K (CIs include 0) and <b>+5.0 / +4.7</b> at 16K (q ≤ 0.001).</li>
+          <li><b>Broad gains</b> (16K, after SFT): <span className="up">+23.0</span> code, <span className="up">+15.6</span> math, <span className="up">+10.4</span> instruction following.</li>
+          <li><b>Language understanding:</b> front-loading adds +5.0 (<span className="mv">MV</span>) and +5.2 (FineWeb), but <span className="mv">MV</span> still trails by <span className="dn">6.8–8.8</span> pts.</li>
+        </ul>
+      </>
+    ),
+  },
+  zoo: {
+    title: <><span className="num">2</span>Across the model zoo</>,
+    color: 'orange',
+    grow: false,
+    body: (
+      <>
+        <table className="combo">
+          <thead>
+            <tr className="grp"><th></th><th colSpan="3">Phase 1: Tulu3</th><th className="p2">Phase 2</th></tr>
+            <tr><th>Reasoning suite avg. (16K)</th><th>Base</th><th>SFT</th><th>DPO</th><th className="p2">Δ reas. SFT</th></tr>
+          </thead>
+          <tbody>
+            <tr className="sec"><td colSpan="5">Matched compute · 300B tokens</td></tr>
+            <tr><td><span className="mv">MixtureVitae</span> (front-loaded)</td><td className="best">30.7</td><td className="best">27.3</td><td className="best">27.8</td><td className="p2 best">+3.6*</td></tr>
+            <tr><td><span className="cm">Comma0.1</span> (perm., not enriched)</td><td>11.2</td><td>12.0</td><td>12.3</td><td className="p2 dn">−5.0</td></tr>
+            <tr><td>Nemotron-CC-HQ</td><td>8.1</td><td>8.4</td><td>8.6</td><td className="p2 dn">−2.8</td></tr>
+            <tr><td>FineWeb-Edu</td><td>8.1</td><td>7.9</td><td>8.5</td><td className="p2 dn">−2.4</td></tr>
+            <tr className="sec"><td colSpan="5">External references · 11–36T tokens</td></tr>
+            <tr><td>SmolLM2 1.7B</td><td>17.1</td><td>18.4</td><td>19.1</td><td className="p2 dn">−4.3</td></tr>
+            <tr><td>Qwen2.5 1.5B</td><td>10.1</td><td>24.0</td><td>25.4</td><td className="p2">−1.3</td></tr>
+            <tr><td>Qwen3 1.7B</td><td>30.9</td><td>31.6</td><td>31.7</td><td className="p2 dn">−19.3</td></tr>
+          </tbody>
+        </table>
+        <div className="tnote">Δ reas. SFT: change under the identical OpenThoughts3-30K reasoning SFT from each model's Tulu3 SFT checkpoint (*MV from its base), scored with a longer sampled generation budget, so not comparable with the Phase 1 columns.</div>
+        <ul style={{marginTop:'1.5mm'}}>
+          <li><span className="cm">Comma0.1</span> is permissive but not enriched, and sits with the non-permissive references: <b>composition, not licensing, predicts the ranking</b>.</li>
+          <li>Only the front-loaded permissive base <span className="up">gains</span> from a small reasoning budget; every other base declines.</li>
+        </ul>
+      </>
+    ),
+  },
+  receptivity: {
+    title: <><span className="num">3</span>Receptivity is laid down in pretraining</>,
+    color: 'purple',
+    grow: true,
+    body: (
+      <>
+        <div className="fig"><div className="fig-wrap"><img src="receptivity.png" alt="Left: removing OpenThoughts3 from pretraining; right: MATH500 gains for four reasoning corpora" /></div></div>
+        <ul>
+          <li><b>Remove OpenThoughts3 from pretraining</b> and the same reasoning SFT reaches <b>23.9</b> instead of <b>33.6</b>: MATH500 <b>38.0</b> vs. <b>69.8</b>, and AIME24/25 fall from 11.7/10.0 to <span className="dn">0</span>.</li>
+          <li><b>Not re-exposure:</b> three corpora absent from pretraining give <span className="mv">MV</span> <span className="up">+16 to +34</span> MATH500; no matched-compute reference improves with any corpus.</li>
+          <li><b>Cost:</b> instruction following drops under reasoning SFT (DPO first largely preserves it); language understanding does not.</li>
+        </ul>
+      </>
+    ),
+  },
+  concl: {
+    title: <>Takeaways</>,
+    color: 'red',
+    grow: false,
+    body: (
+      <>
+        <ul>
+          <li><b>Composition, not licensing,</b> decides post-trained reasoning: front-load instruction &amp; reasoning data.</li>
+          <li><b>A permissive-first constraint is affordable</b> for math, code and reasoning; language understanding still lags.</li>
+          <li><b>Limitations:</b> 1.7B / 300B scale, one permissive pool, no RL stage.</li>
+        </ul>
+        <div className="links">
+          <div className="ll"><b>Code, evals &amp; checkpoints:</b> <span style={{whiteSpace:"nowrap"}}>github.com/MixtureVitae/permissive-post-train</span></div>
+        </div>
+      </>
+    ),
+  },
+};
+
+const DEFAULT_LAYOUT = {
+  columns: [
+    { id: 'col1', widthMm: 290, cards: ['tldr', 'setup', 'factorial'] },
+    { id: 'col2', widthMm: null, cards: ['zoo', 'receptivity', 'concl'] },
+  ],
+};
+const DEFAULT_CARD_HEIGHTS = {};
+const DEFAULT_FONT_SCALE = 2.85;
+
+const LOGO_BAR = [
+  { src: '../logos/freiburg.png', alt: 'University of Freiburg', h: 10 },
+  { src: '../logos/laion.png', alt: 'LAION', h: 13.5 },
+  { src: '../logos/fzj.png', alt: 'Forschungszentrum Jülich / JSC', h: 15.5 },
+  { src: '../logos/open-sci.png', alt: 'Open-Ψ (Open-Sci) Collective', h: 18 },
+  { src: '../logos/openeurollm.png', alt: 'OpenEuroLLM', h: 19 },
+  { src: '../logos/ontocord.png', alt: 'Ontocord', h: 17.5 },
+  { src: '../logos/polytechnique.png', alt: 'École Polytechnique', h: 23 },
+  { src: '../logos/ellis_tuebingen.png', alt: 'ELLIS Institute Tübingen', h: 10.5 },
+];
+const DEFAULT_LOGOS = [];
+
+/* ================================================================
+   FRAMEWORK CODE — generally don't need to modify below this line
+   ================================================================ */
+
+function cloneLayout(layout) {
+  return { columns: layout.columns.map(c => ({ id: c.id, widthMm: c.widthMm, cards: [...c.cards] })) };
+}
+
+const LS_KEY = 'posterConfig-permissive-post-train-workshop';
+function getFullConfig(layout, cardHeights, fontScale, logos) {
+  return { columns: layout.columns, cardHeights, fontScale, logos };
+}
+function loadInitialConfig() {
+  try { const s = localStorage.getItem(LS_KEY); if (s) return JSON.parse(s); } catch(e) {}
+  return null;
+}
+const INIT_CONFIG = loadInitialConfig();
+
+function PosterApp() {
+  const [layout, setLayout] = useState(INIT_CONFIG ? cloneLayout({columns: INIT_CONFIG.columns}) : cloneLayout(DEFAULT_LAYOUT));
+  const [selectedCard, setSelectedCard] = useState(null);
+  const [cardHeights, setCardHeights] = useState(INIT_CONFIG?.cardHeights || {...DEFAULT_CARD_HEIGHTS});
+  const [preview, setPreview] = useState(false);
+  const [logos, setLogos] = useState(INIT_CONFIG?.logos || DEFAULT_LOGOS);
+  const [fontScale, setFontScaleState] = useState(INIT_CONFIG?.fontScale || DEFAULT_FONT_SCALE);
+  const currentScaleRef = useRef(1);
+  const posterRef = useRef(null);
+
+  useEffect(() => { const cfg = getFullConfig(layout, cardHeights, fontScale, logos); localStorage.setItem(LS_KEY, JSON.stringify(cfg)); }, [layout, cardHeights, fontScale, logos]);
+  useEffect(() => { document.documentElement.style.setProperty('--font-scale', fontScale); }, [fontScale]);
+  useEffect(() => { document.body.classList.toggle('preview', preview); }, [preview]);
+
+  const fit = useCallback(() => {
+    if (window.matchMedia('print').matches) return;
+    const pW = POSTER_W_MM * MM, pH = POSTER_H_MM * MM;
+    const scale = Math.min(window.innerWidth / pW, window.innerHeight / pH);
+    currentScaleRef.current = scale;
+    const left = (window.innerWidth - pW * scale) / 2;
+    const top = (window.innerHeight - pH * scale) / 2;
+    document.body.style.transform = 'translate(' + left + 'px,' + top + 'px) scale(' + scale + ')';
+  }, []);
+  useEffect(() => { fit(); window.addEventListener('resize', fit); return () => window.removeEventListener('resize', fit); }, [fit]);
+
+  useEffect(() => { if (typeof renderMathInElement === 'function') renderMathInElement(document.body, {delimiters: [{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]}); });
+
+  useEffect(() => {
+    function handler(e) { if (selectedCard && !e.target.closest('.swap-handle') && !e.target.closest('.drop-zone')) setSelectedCard(null); }
+    document.addEventListener('click', handler); return () => document.removeEventListener('click', handler);
+  }, [selectedCard]);
+
+  function swapCards(id1, id2) {
+    if (id1 === id2) return false;
+    setLayout(prev => { const next = cloneLayout(prev); let l1, l2; for (const c of next.columns) { const i1 = c.cards.indexOf(id1); if (i1!==-1) l1={col:c,idx:i1}; const i2 = c.cards.indexOf(id2); if (i2!==-1) l2={col:c,idx:i2}; } if (!l1||!l2) return prev; l1.col.cards[l1.idx]=id2; l2.col.cards[l2.idx]=id1; return next; });
+    setCardHeights(prev => { const n={...prev}; delete n[id1]; delete n[id2]; return n; });
+    return true;
+  }
+  function moveCard(cardId, targetColId, position) {
+    setLayout(prev => { const next = cloneLayout(prev); for (const c of next.columns) { const i = c.cards.indexOf(cardId); if (i!==-1) { c.cards.splice(i,1); break; } } const tc = next.columns.find(c=>c.id===targetColId); if (!tc) return prev; tc.cards.splice(Math.max(0,Math.min(position,tc.cards.length)),0,cardId); return next; });
+    setCardHeights(prev => { const n={...prev}; delete n[cardId]; return n; });
+  }
+  function setColumnWidth(colId, widthMm) { setLayout(prev => { const next = cloneLayout(prev); const c = next.columns.find(c=>c.id===colId); if (!c) return prev; c.widthMm = widthMm; return next; }); }
+  function setCardHeight(cardId, heightMm) { setCardHeights(prev => ({...prev, [cardId]: heightMm})); }
+  function getWaste() { let total=0; const details=[]; document.querySelectorAll('.fig-wrap').forEach(fw => { const img=fw.querySelector('img'); if(!img)return; const fr=fw.getBoundingClientRect(),ir=img.getBoundingClientRect(); const wH=Math.abs(fr.height-ir.height),wW=Math.abs(fr.width-ir.width); total+=wH+wW; details.push({card:fw.closest('.card')?.dataset.id,wasteH:Math.round(wH),wasteW:Math.round(wW),pct:Math.round((wH+wW)/(fr.height+fr.width)*100)}); }); return {total:Math.round(total),details}; }
+  function getLayout() { const s=currentScaleRef.current; const r=[]; document.querySelectorAll('#poster > .col').forEach(col => { const cards=[]; col.querySelectorAll('.card').forEach(c => { const b=c.getBoundingClientRect(); cards.push({id:c.dataset.id,height:Math.round(b.height/s),heightMm:Math.round(b.height/s/MM),grow:c.classList.contains('grow')}); }); r.push({colId:col.id,widthPx:Math.round(col.getBoundingClientRect().width/s),widthMm:Math.round(col.getBoundingClientRect().width/s/MM),cards}); }); return r; }
+
+  function resetLayout() { setLayout(cloneLayout(DEFAULT_LAYOUT)); setCardHeights({...DEFAULT_CARD_HEIGHTS}); setFontScaleState(DEFAULT_FONT_SCALE); setLogos([...DEFAULT_LOGOS]); setSelectedCard(null); localStorage.removeItem(LS_KEY); }
+  function saveConfig() { const cfg=getFullConfig(layout,cardHeights,fontScale,logos); const b=new Blob([JSON.stringify(cfg,null,2)+'\n'],{type:'application/json'}); const u=URL.createObjectURL(b); const a=document.createElement('a'); a.href=u; a.download='poster-config.json'; a.click(); URL.revokeObjectURL(u); }
+  function copyConfig() { navigator.clipboard.writeText(JSON.stringify(getFullConfig(layout,cardHeights,fontScale,logos),null,2)).then(()=>alert('Config copied! Paste it to Claude.')); }
+  function setFontScale(s) { setFontScaleState(parseFloat(s)||DEFAULT_FONT_SCALE); }
+
+  useEffect(() => { window.posterAPI = { swapCards, moveCard, setColumnWidth, setCardHeight, setFontScale, getWaste, getLayout, getConfig:()=>getFullConfig(layout,cardHeights,fontScale,logos), resetLayout, saveConfig, copyConfig }; });
+
+  function handleSwapClick(cardId, e) { e.stopPropagation(); if (!selectedCard) setSelectedCard(cardId); else if (selectedCard===cardId) setSelectedCard(null); else { swapCards(selectedCard, cardId); setSelectedCard(null); } }
+  function handleDropZone(targetColId, position, e) { e.stopPropagation(); if (!selectedCard) return; moveCard(selectedCard, targetColId, position); setSelectedCard(null); }
+
+  function handleColResize(dividerIdx, e) {
+    e.preventDefault(); const handle=e.currentTarget; handle.classList.add('active');
+    const targetColIdx=dividerIdx===0?0:2; const invert=dividerIdx===0?1:-1;
+    const targetEl=document.getElementById(layout.columns[targetColIdx].id);
+    const startX=e.clientX; const scale=currentScaleRef.current;
+    const startW=targetEl.getBoundingClientRect().width/scale;
+    function onMove(ev) { const dx=(ev.clientX-startX)/scale*invert; const newW=Math.max(120,(startW+dx)/MM); setLayout(prev => { const next=cloneLayout(prev); next.columns[targetColIdx].widthMm=Math.round(newW); return next; }); }
+    function onUp() { document.removeEventListener('mousemove',onMove); document.removeEventListener('mouseup',onUp); handle.classList.remove('active'); document.body.style.cursor=''; }
+    document.body.style.cursor='col-resize'; document.addEventListener('mousemove',onMove); document.addEventListener('mouseup',onUp);
+  }
+
+  function handleRowResize(colId, cardAboveIdx, e) {
+    e.preventDefault(); const handle=e.currentTarget; handle.classList.add('active');
+    const col=layout.columns.find(c=>c.id===colId); const aboveId=col.cards[cardAboveIdx];
+    const aboveEl=document.querySelector('[data-id="'+aboveId+'"]'); if(!aboveEl)return;
+    const startY=e.clientY; const scale=currentScaleRef.current; const startH=aboveEl.getBoundingClientRect().height/scale;
+    setCardHeights(prev=>({...prev,[aboveId]:startH/MM}));
+    function onMove(ev) { const dy=(ev.clientY-startY)/scale; setCardHeights(prev=>({...prev,[aboveId]:Math.max(20,(startH+dy)/MM)})); }
+    function onUp() { document.removeEventListener('mousemove',onMove); document.removeEventListener('mouseup',onUp); handle.classList.remove('active'); document.body.style.cursor=''; }
+    document.body.style.cursor='row-resize'; document.addEventListener('mousemove',onMove); document.addEventListener('mouseup',onUp);
+  }
+
+  function isCardGrow(cardId) {
+    if (cardHeights[cardId] != null) return false;
+    for (const col of layout.columns) {
+      const idx = col.cards.indexOf(cardId); if (idx===-1) continue;
+      const hasGrower = col.cards.some(cid => CARD_REGISTRY[cid]?.grow && cardHeights[cid]==null);
+      if (hasGrower) return CARD_REGISTRY[cardId]?.grow || false;
+      const lastFlexible = [...col.cards].reverse().find(cid => cardHeights[cid]==null);
+      return cardId === lastFlexible;
+    }
+    return false;
+  }
+
+  function renderCard(cardId) {
+    const card = CARD_REGISTRY[cardId]; if (!card) return null;
+    const classes = ['card']; if (card.color) classes.push(card.color); if (isCardGrow(cardId)) classes.push('grow'); if (selectedCard===cardId) classes.push('swap-selected');
+    const style = {}; if (cardHeights[cardId]!=null) style.flex='0 0 '+cardHeights[cardId]+'mm';
+    return (<div key={cardId} className={classes.join(' ')} data-id={cardId} style={style}><div className="swap-handle" onClick={(e)=>handleSwapClick(cardId,e)}>&#x2725;</div><h2>{card.title}</h2>{card.body}</div>);
+  }
+
+  function renderDropZone(colId, position) {
+    const visible = selectedCard !== null;
+    return (<div key={'dz-'+colId+'-'+position} className={'drop-zone'+(visible?' visible':'')} onClick={(e)=>handleDropZone(colId,position,e)}>{visible && <div className="drop-zone-inner" />}</div>);
+  }
+
+  function renderColumn(col) {
+    const style = col.widthMm != null ? {flex:'0 0 '+col.widthMm+'mm'} : {flex:'1.5'};
+    const children = [renderDropZone(col.id, 0)];
+    col.cards.forEach((cardId, i) => {
+      children.push(renderCard(cardId));
+      if (i < col.cards.length - 1) children.push(<div key={'row-'+col.id+'-'+i} className="divider row-resize" onMouseDown={(e)=>handleRowResize(col.id,i,e)} />);
+      children.push(renderDropZone(col.id, i + 1));
+    });
+    return (<div key={col.id} className="col" id={col.id} style={style}>{children}</div>);
+  }
+
+  return (
+    <>
+      <div className="toolbar">
+        <button onClick={()=>setPreview(!preview)} style={preview?{background:'#3b5a80',color:'#fff'}:{}}>{preview?'Edit':'Preview'}</button>
+        {!preview && <>
+          <button onClick={()=>setFontScale(Math.max(0.8,fontScale-0.1))}>A-</button>
+          <button onClick={()=>setFontScale(fontScale+0.1)}>A+</button>
+          <button onClick={saveConfig} title="Download poster-config.json">Save</button>
+          <button onClick={copyConfig} title="Copy config JSON to clipboard">Copy Config</button>
+          <button onClick={resetLayout}>Reset</button>
+        </>}
+      </div>
+
+      <div className="masthead">
+      <div className="header">
+        <div className="header-left">
+          <h1><span className="m">Permissive Data</span> Is Not the Bottleneck: Front-Loading Reasoning Data Enables Strong Post-Training</h1>
+          <div className="authors">Ali Elganzory<sup>1,4*</sup>, Harsh Raj<sup>2,3,4,5*</sup>, Marianna Nezhurina<sup>2,3,4,5*</sup>, Victor May<sup>4,6*</sup>, Van Khue Nguyen<sup>4,7</sup>, David Salinas<sup>1,4,5,8</sup>, Huu Nguyen<sup>3,4,5,6</sup>, Jenia Jitsev<sup>2,3,4,5</sup></div>
+          <div className="aff"><sup>1</sup>University of Freiburg &nbsp; <sup>2</sup>LAION &nbsp; <sup>3</sup>Jülich Supercomputing Centre (JSC), Research Center Jülich (FZJ) &nbsp; <sup>4</sup>Open-Ψ (Open-Sci) Collective &nbsp; <sup>5</sup>OpenEuroLLM &nbsp; <sup>6</sup>Ontocord &nbsp; <sup>7</sup>École Polytechnique &nbsp; <sup>8</sup>ELLIS Institute Tübingen &nbsp; <span className="eq"><sup>*</sup>Equal contribution</span></div>
+          <div className="ws">Workshop: Transitioning from Pre-Training to Post-Training</div>
+        </div>
+        <div className="header-right">
+          <div className="badge"><img src="../logos/neurips.png" alt="NeurIPS" /><span>2026</span></div>
+          <div className="qr"><img src="../qr.png" alt="QR code to code repository" /><div className="ql">Code, evals &amp; checkpoints</div></div>
+        </div>
+      </div>
+      <div className="logobar">
+        {LOGO_BAR.map((l, i) => (<img key={i} src={l.src} alt={l.alt} style={{height:l.h+'mm'}} />))}
+      </div>
+      </div>
+
+      <div className="poster" id="poster" ref={posterRef}>
+        {layout.columns.map((col, colIdx) => {
+          const elements = [];
+          if (colIdx > 0) elements.push(<div key={'col-div-'+colIdx} className="divider col-resize" onMouseDown={(e)=>handleColResize(colIdx-1,e)} />);
+          elements.push(renderColumn(col));
+          return elements;
+        })}
+      </div>
+    </>
+  );
+}
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<PosterApp />);
+</script>
+</body>
+</html>

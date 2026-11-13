@@ -1,0 +1,25 @@
+{
+  "columns": [
+    {
+      "id": "col1",
+      "widthMm": 290,
+      "cards": [
+        "tldr",
+        "setup",
+        "factorial"
+      ]
+    },
+    {
+      "id": "col2",
+      "widthMm": null,
+      "cards": [
+        "zoo",
+        "receptivity",
+        "concl"
+      ]
+    }
+  ],
+  "cardHeights": {},
+  "fontScale": 2.85,
+  "logos": []
+}
